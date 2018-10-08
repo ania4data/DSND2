@@ -5,9 +5,11 @@
 - Perform NLP analysis on the review sentiments
 - Analyze word structures using unsupervised methods
 
+# Link to the blog post
+
+[Here is a blog post on the study on medium](https://medium.com/@anoosheh.niavarani.egr/what-an-amazon-fine-food-review-tell-us-a-food-for-thought-869dfe70f2ee)
 
 # Dependecies and packages:
-
 
 - Python 3.x
 - Numpy
@@ -36,6 +38,3 @@ The zipped `csv` file used in this study can be downloaded from:
 - [Web data: Amazon Fine Foods reviews](https://snap.stanford.edu/data/web-FineFoods.html)
 - [Kaggle](https://www.kaggle.com/snap/amazon-fine-food-reviews)
 
-# Link to the blog post
-
-[Here is a blog post on the study on medium](https://medium.com/@anoosheh.niavarani.egr/what-an-amazon-fine-food-review-tell-us-a-food-for-thought-869dfe70f2ee)
