@@ -8,12 +8,14 @@ from io import BytesIO
 import numpy as np
 from tqdm import tqdm
 import pandas as pd
+import os
 
 
 html_page = urllib.request.urlopen('https://commons.wikimedia.org/wiki/Commons:Quality_images/Subject/Microscopic') 
 soup = BeautifulSoup(html_page, 'lxml')
 images = []
 data_name = {}
+collage_index = {}
 
 name_list = []
 address_list_thumb = []
@@ -41,36 +43,33 @@ for a_ in soup.findAll('a'):
 
 			name_list.append(file_name.rstrip())
 			address_list_thumb.append(file_address.rstrip())
-			file_address = 'https://commons.wikimedia.org/wiki/File:' + file_address.split('/')[-2]
-			file_address_list.append(file_address.rstrip())
+			file_address_tmp = 'https://commons.wikimedia.org/wiki/File:' + file_address.split('/')[-2].rstrip()
+			file_address_list.append(file_address_tmp)
 			thumb_pix = '/' + file_address.split('/')[-1][0:3]       
-			
+			#print(file_address.split(thumb_pix)[0].replace('/thumb',''))
 			address_list_original.append(file_address.split(thumb_pix)[0].replace('/thumb',''))
 
 
-json_data = json.dumps(data_name)
+json_data1 = json.dumps(data_name)
 
-with open('data_name.json', 'w') as outfile:
-    json.dump(json_data, outfile)
+with open('data_name.json', 'w') as outfile1:
+    json.dump(json_data1, outfile1)
 
-#print(file_address_list)
-#print(address_list_thumb)
-#print(len(address_list_thumb))
 
-# need to return address_thumb  address_original and address file
 
 
 #   get collage png, need to get author, license better in dataframe!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-if(1>5):
+if(6>5):
 
 	random_index = list(np.random.choice(range(len(address_list_thumb)), 100))
 
 	new_img = Image.new('RGB', (600,600))
-
-
+	print('')
+	print('Making collage ...')
 	for k in tqdm(range(100)):
 
+		collage_index[k] = str(random_index[k])
 
 		image_link = address_list_thumb[random_index[k]]
 
@@ -110,7 +109,10 @@ if(1>5):
 
 
 	new_img.save("photo_output.png")
+	json_data2 = json.dumps(collage_index)
 
+	with open('index_collage.json', 'w') as outfile2:
+		json.dump(json_data2, outfile2)
 
 #   get author name
 #'https://commons.wikimedia.org/wiki/File:Daucus_carota_subsp._maximus_MHNT.BOT.2007.40.407.jpg'   #'https://commons.wikimedia.org/wiki/File:Pond_Water_Under_the_Microscope.jpg'
@@ -120,12 +122,25 @@ source_list = []
 license_link_list = []
 license_code_list = []
 
-for url_test in file_address_list:
+
+print('Downloading files ...')
+
+for counter in tqdm(range(len(file_address_list))):
 
 
 #url_test = file_address_list[0]  
 
-	html_page = urllib.request.urlopen(url_test)
+	html_page = urllib.request.urlopen(file_address_list[counter])
+
+	image_link = address_list_original[counter]
+
+	response = requests.get(image_link)
+	img = Image.open(BytesIO(response.content))
+
+	if not os.path.exists('images'):
+		os.makedirs('images')
+
+	img.save('images/'+'{}.png'.format(counter))
 
 
 	soup = BeautifulSoup(html_page, 'lxml')
@@ -183,6 +198,8 @@ for url_test in file_address_list:
 	license_link_list.append(license_link)
 	license_code_list.append(license_code)
 
+#print(address_list_original)
+#print(file_address_list)
 print(len(author_name_list),len(source_list),len(license_link_list),len(license_code_list))	
 
 df = pd.DataFrame([np.array(list(name_list)), np.array(list(author_name_list)),np.array(list(source_list)), np.array(list(license_code_list))\
@@ -190,4 +207,6 @@ df = pd.DataFrame([np.array(list(name_list)), np.array(list(author_name_list)),n
                   index = ['File_name', 'Author_name', 'Credit', 'license_code', 'license_link', 'link_original_file', 'link_page']).T  
 print(df)
 
-df.to_csv('photo_fetch_info.csv')
+df.to_csv('images/photo_fetch_info.csv')
+
+#save photos to disk
