@@ -55,11 +55,7 @@ json_data1 = json.dumps(data_name)
 with open('data_name.json', 'w') as outfile1:
     json.dump(json_data1, outfile1)
 
-
-
-
-#   get collage png, need to get author, license better in dataframe!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 if(6>5):
 
 	random_index = list(np.random.choice(range(len(address_list_thumb)), 100))
@@ -67,6 +63,7 @@ if(6>5):
 	new_img = Image.new('RGB', (600,600))
 	print('')
 	print('Making collage ...')
+
 	for k in tqdm(range(100)):
 
 		collage_index[k] = str(random_index[k])
@@ -107,11 +104,12 @@ if(6>5):
 		new_img.paste(img_resize_crop, (i*60,j*60))
 
 
-
-	new_img.save("photo_output.png")
+	if not os.path.exists('images'):
+		os.makedirs('images')
+	new_img.save("images/photo_collage.png")
 	json_data2 = json.dumps(collage_index)
 
-	with open('index_collage.json', 'w') as outfile2:
+	with open('images/index_collage.json', 'w') as outfile2:
 		json.dump(json_data2, outfile2)
 
 #   get author name
@@ -125,14 +123,21 @@ license_code_list = []
 
 print('Downloading files ...')
 
+thumbnail = True  #if False download original photo
+
 for counter in tqdm(range(len(file_address_list))):
 
 
-#url_test = file_address_list[0]  
 
 	html_page = urllib.request.urlopen(file_address_list[counter])
 
-	image_link = address_list_original[counter]
+	if(thumbnail == True):
+
+		image_link = address_list_thumb[counter]
+
+	else:
+
+		image_link = address_list_original[counter]
 
 	response = requests.get(image_link)
 	img = Image.open(BytesIO(response.content))
