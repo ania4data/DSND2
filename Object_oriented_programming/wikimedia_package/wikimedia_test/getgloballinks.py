@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-html_page = urllib.request.urlopen('https://commons.wikimedia.org/wiki/Commons:Quality_images/Technical/Exposure') 
+html_page = urllib.request.urlopen('https://commons.wikimedia.org/wiki/Commons:Quality_images/Subject/Microscopic') 
 soup = BeautifulSoup(html_page, 'lxml')
 images = []
 data_name = {}
@@ -17,7 +17,7 @@ data_name = {}
 name_list = []
 address_list_thumb = []
 address_list_original = []
-
+file_address_list = []
 
 count = 0
 for a_ in soup.findAll('a'):
@@ -40,10 +40,9 @@ for a_ in soup.findAll('a'):
 
 			name_list.append(file_name)
 			address_list_thumb.append(file_address)
-			thumb_pix = '/' + file_address.split('/')[-1][0:3]
-
-			#print(thumb_pix)
-            
+			file_address = 'https://commons.wikimedia.org/wiki/File:' + file_address.split('/')[-2]
+			file_address_list.append(file_address)
+			thumb_pix = '/' + file_address.split('/')[-1][0:3]       
 			
 			address_list_original.append(file_address.split(thumb_pix)[0].replace('/thumb',''))
 
@@ -53,28 +52,27 @@ json_data = json.dumps(data_name)
 with open('data_name.json', 'w') as outfile:
     json.dump(json_data, outfile)
 
-#print(name_list)
-print(address_list_thumb)
-print(len(address_list_thumb))
+#print(file_address_list)
+#print(address_list_thumb)
+#print(len(address_list_thumb))
 
-#random_link = np.random.choice(address_list_thumb,100)
+# need to return address_thumb  address_original and address file
+
+
+#   get collage png, need to get author, license better in dataframe!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 random_index = list(np.random.choice(range(len(address_list_thumb)), 100))
-
-#random_link = address_list_thumb[random_index[:]]
-
 
 new_img = Image.new('RGB', (600,600))
 
 
 for k in tqdm(range(100)):
 
-	#print('here')
+
 	image_link = address_list_thumb[random_index[k]]
-	#print(image_link)
-	#print('here')
+
 	response = requests.get(image_link)
 	img = Image.open(BytesIO(response.content))
-	#print(img.width,img.height)
 
 	ratio=img.width/img.height
 
@@ -106,8 +104,80 @@ for k in tqdm(range(100)):
 
 	new_img.paste(img_resize_crop, (i*60,j*60))
 
-	#k += 1
-	# if(k%10 == 0):
-	# 	print('{}/100'.format(k))
 
-new_img.save("hola.png")
+
+new_img.save("photo_output.png")
+
+
+#   get author name
+#'https://commons.wikimedia.org/wiki/File:Daucus_carota_subsp._maximus_MHNT.BOT.2007.40.407.jpg'   #'https://commons.wikimedia.org/wiki/File:Pond_Water_Under_the_Microscope.jpg'
+
+author_name_list = []
+source_list = []
+license_link_list = []
+license_code_list = []
+
+for url_test in file_address_list:
+
+
+#url_test = file_address_list[0]  
+
+	html_page = urllib.request.urlopen(url_test)
+
+
+	soup = BeautifulSoup(html_page, 'lxml')
+
+
+	count=0
+	for img in soup.findAll('tr'):
+		text=str(img.get('style'))
+		if(((text == "vertical-align: top") or (text == 'valign="top"'))): #and (str(img.get('id') == "fileinfotpl_aut")
+			count += 1
+
+			td_list = img.findAll('td')
+
+			for item in td_list:
+
+				if(item.get('id') == "fileinfotpl_src"):
+
+					src_name = str(td_list[1]).strip().split('>')[2][:-6]
+					if('<' in src_name or (len(src_name) == 0)):
+						src_name = None
+
+				if(item.get('id') == "fileinfotpl_aut"):
+					auth_name = str(td_list[1]).strip().split('>')[2][:-3]
+					if('<' in auth_name or (len(auth_name) == 0)):
+						auth_name = None
+
+	print(url_test)
+	print(auth_name)
+	print(src_name)
+
+	author_name_list.append(auth_name)
+	source_list.append(src_name)
+
+	for img in soup.findAll('span'):
+		text=img.get('class')
+
+		if('licensetpl' in str(text)):
+
+
+			if('licensetpl_link"' in str(img)):
+
+				license_link = str(img).split('>')[1][:-7]
+				if('<' in license_link or (len(license_link) == 0)):
+					license_link = None				
+
+			if('licensetpl_short' in str(img)):
+
+				license_code = str(img).split('>')[1][:-6]
+				if('<' in license_code or (len(license_code) == 0)):
+					license_code = None
+
+	print(license_link)
+	print(license_code)
+
+	license_link_list.append(license_link)
+	license_code_list.append(license_code)
+
+print(len(author_name_list),len(source_list),len(license_link_list),len(license_code_list))	
