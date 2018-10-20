@@ -2,9 +2,13 @@ from bs4 import BeautifulSoup
 import urllib.request
 import re
 import json
+from PIL import Image
+import requests
+from io import BytesIO
+import numpy as np
 
 
-html_page = urllib.request.urlopen('https://commons.wikimedia.org/wiki/Commons:Quality_images/Subject/Microscopic') 
+html_page = urllib.request.urlopen('https://commons.wikimedia.org/wiki/Commons:Quality_images/Subject/Sunsets') 
 soup = BeautifulSoup(html_page, 'lxml')
 images = []
 data_name = {}
@@ -50,3 +54,21 @@ with open('data_name.json', 'w') as outfile:
 
 #print(name_list)
 print(address_list_original)
+print(len(address_list_original))
+
+random_link = np.random.choice(address_list_thumb,100)
+
+new_img = Image.new('RGB', (500,500))
+
+for k, image_link in enumerate(random_link):
+
+	response = requests.get(image_link)
+	img = Image.open(BytesIO(response.content))
+	img.thumbnail((50,50))
+	j = int(k/10)
+	i = int(k - (j*10))
+	print(k)
+
+	new_img.paste(img, (i*50,j*50))
+
+new_img.save("hola.png")
