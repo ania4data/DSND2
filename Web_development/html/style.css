@@ -1,0 +1,54 @@
+    body {
+
+         margin-right: 25px;
+         margin-left: 25px;
+    }
+
+
+    h1{
+        text-transform: capitalize;
+
+        <!-- text-transform: uppercase; -->
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    a#main-link img{
+        width: 50%;
+    }
+
+    #list {
+        margin-left: : 100px;
+        font-weight: bold;
+        color: orange
+
+    }
+
+    #udacity-link {
+        margin-top: 500px;
+        margin-bottom: 100px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 40%;
+        margin-left: 40px;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    form {
+
+        margin-left: 100px;
+    }
