@@ -1,0 +1,2 @@
+
+statistical consideration, main section
